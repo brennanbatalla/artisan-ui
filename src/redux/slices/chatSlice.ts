@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { resetRedux } from '../customActions';
+import { RootState } from '../store';
 
 type InitialState = {
   chatOpen: boolean;
@@ -16,16 +17,22 @@ const initialState: InitialState = {
 const chatSlice = createSlice({
   name: 'chatSlice',
   initialState: initialState,
-  reducers: {},
+  reducers: {
+    toggleChatOpen: (state: InitialState) => {
+      state.chatOpen = !state.chatOpen;
+    }
+  },
   extraReducers: (builder) => {
     builder.addCase(resetRedux, () => initialState);
   }
 });
 
 // Action creators are generated for each case reducer function
-// eslint-disable-next-line no-empty-pattern
-export const {} = chatSlice.actions;
+
+export const { toggleChatOpen } = chatSlice.actions;
 
 // Selectors
+
+export const isAvaChatOpen = (state: RootState) => state.chatSlice.chatOpen;
 
 export default chatSlice.reducer;

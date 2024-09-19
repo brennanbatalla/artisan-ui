@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch, useSelector, useStore } from 'react-redux';
-import applicationSlice from './slices/chatSlice';
+import chatSlice from './slices/chatSlice';
 
 const reducer = {
-  applicationSlice
+  chatSlice
 };
 
 export const reduxStore = configureStore({
