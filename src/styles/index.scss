@@ -1,0 +1,14 @@
+@import 'tailwind';
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: whitesmoke;
+  font-family: 'Inter', sans-serif;
+}
+
+#root {
+  display: flex;
+  height: 100vh;
+}

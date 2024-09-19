@@ -1,0 +1,6 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Disable concurent to run build-types after ESLint in lint-staged
+npm run lint
+npx tsc --noEmit # Used to typecheck the source code, --noEmit ensures a dist directory isn't created
