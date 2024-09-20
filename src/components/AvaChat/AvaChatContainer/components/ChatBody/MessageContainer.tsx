@@ -1,8 +1,10 @@
 import { IChat, IMessage } from '../../../../../models/IChat';
-import AVA_AVATAR from '../../../../../assets/avaHeadshot.png';
-import { PencilIcon } from '@heroicons/react/24/outline';
-import { sendMessage } from '../../../../../redux/slices/chatSlice';
+import { AIMessage } from './AIMessage';
+import { UserMessage } from './UserMessage';
+import { useState } from 'react';
 import { useAppDispatch } from '../../../../../redux/store';
+import { updateMessage } from '../../../../../redux/slices/chatSlice';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 interface Props {
   messageBody: IMessage;
@@ -11,58 +13,73 @@ interface Props {
 }
 
 export const MessageContainer = ({ messageBody, chat, showOptions }: Props) => {
-  const currentMessage = messageBody?.edits?.[messageBody.edits.length - 1];
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(messageBody.edits.length - 1);
+  const currentMessage = messageBody?.edits?.[currentMessageIndex];
+  const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
 
-  const onOptionClick = async (option: string) => {
-    if (!chat) {
+  const handleUpdateMessage = async (input: string) => {
+    if (!input || !currentMessage) {
       return;
     }
 
     try {
+      setLoading(true);
       await dispatch(
-        sendMessage({ message: option, context: currentMessage.context, chatId: chat._id })
+        updateMessage({
+          message: input,
+          context: currentMessage.context,
+          chatId: chat._id,
+          messageId: messageBody.id
+        })
       ).unwrap();
+      setEditMode(false);
     } catch (e) {
-      console.error(e);
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMessageIndexChange = (direction: number) => {
+    if (direction > 0) {
+      if (currentMessageIndex + 1 <= messageBody.edits.length - 1) {
+        setCurrentMessageIndex(currentMessageIndex + 1);
+      }
+    } else if (currentMessageIndex - 1 >= 0) {
+      setCurrentMessageIndex(currentMessageIndex - 1);
     }
   };
 
   return (
     <>
-      <div className={'flex gap-1 items-end'}>
-        <span className={'flex-1'} />
-        <button className={'btn btn-ghost btn-xs p-1'}>
-          <PencilIcon className={'w-3'} />
-        </button>
-        <div
-          className={`mt-[10px] max-w-[90%] whitespace-pre-wrap py-1 px-2 rounded-lg text-sm bg-primary-600 text-white rounded-tr-none`}>
-          {currentMessage?.message}
+      <UserMessage
+        message={currentMessage}
+        editMode={editMode}
+        setEditMode={setEditMode}
+        loading={loading}
+        submitEdit={handleUpdateMessage}
+      />
+      {!editMode && messageBody?.edits?.length > 1 ? (
+        <div className={'flex gap-1 items-center text-gray-600'}>
+          <span className={'flex-1'} />
+          <button
+            className={'btn btn-xs btn-ghost p-1'}
+            onClick={() => handleMessageIndexChange(-1)}>
+            <ChevronLeftIcon className={'w-4'} />
+          </button>
+          <p className={'text-xs'}>
+            {currentMessageIndex + 1} of {messageBody.edits.length}
+          </p>
+          <button
+            className={'btn btn-xs btn-ghost p-1'}
+            onClick={() => handleMessageIndexChange(1)}>
+            <ChevronRightIcon className={'w-4'} />
+          </button>
         </div>
-      </div>
-
-      <div className={'flex gap-2'}>
-        <img src={AVA_AVATAR} className={'rounded-full min-w-[40px] h-[40px]'} alt={'Ava'} />
-
-        <div>
-          <div
-            className={`mt-[10px] max-w-[90%] whitespace-pre-wrap py-1 px-2 rounded-lg text-sm bg-gray-200`}>
-            {currentMessage?.response || <div className={'loading'} />}
-          </div>
-          {currentMessage?.quickOptions?.length && showOptions ? (
-            <div className={'flex gap-1 flex-wrap py-2'}>
-              {currentMessage.quickOptions.slice(0, 4).map((option, i) => (
-                <button
-                  onClick={() => onOptionClick(option)}
-                  className={'btn btn-primary btn-outline btn-xs rounded-full'}
-                  key={i}>
-                  {option}
-                </button>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      </div>
+      ) : null}
+      <AIMessage message={currentMessage} showOptions={showOptions} chat={chat} />
     </>
   );
 };
