@@ -2,11 +2,36 @@ import { useState } from 'react';
 import USER_AVATAR from '../../../../assets/myHeadshot.png';
 import { LuSendHorizonal } from 'react-icons/lu';
 import { GoGear } from 'react-icons/go';
+import { IChat } from '../../../../models/IChat';
+import { useAppDispatch } from '../../../../redux/store';
+import { sendMessage } from '../../../../redux/slices/chatSlice';
 
-export const ChatFooter = () => {
+interface Props {
+  chat?: IChat;
+}
+
+export const ChatFooter = ({ chat }: Props) => {
   const contextOptions = ['Onboarding', 'Referral'];
   const [input, setInput] = useState('');
   const [context, setContext] = useState(contextOptions[0]);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
+
+  const submit = async () => {
+    if (!chat) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await dispatch(sendMessage({ message: input, context, chatId: chat?.id })).unwrap();
+      setInput('');
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className={'border-t pt-4 flex flex-col gap-4'}>
@@ -15,7 +40,7 @@ export const ChatFooter = () => {
         <input
           placeholder={'Your question here'}
           className={'outline-0 w-full placeholder:text-gray-500'}
-          src={input}
+          value={input}
           onChange={(e) => setInput(e.target.value)}
         />
       </div>
@@ -35,8 +60,11 @@ export const ChatFooter = () => {
         <button className={'btn btn-sm btn-ghost px-1'}>
           <GoGear className={'text-2xl'} />
         </button>
-        <button className={'btn btn-sm btn-ghost px-1'} disabled={!input}>
-          <LuSendHorizonal className={'text-2xl'} />
+        <button
+          className={'btn btn-sm btn-ghost px-1'}
+          disabled={!input || loading || !chat}
+          onClick={submit}>
+          {loading ? <div className={'loading'} /> : <LuSendHorizonal className={'text-2xl'} />}
         </button>
       </div>
     </div>
