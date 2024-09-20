@@ -1,7 +1,7 @@
 import { IChat, IMessage } from '../../../../../models/IChat';
 import { AIMessage } from './AIMessage';
 import { UserMessage } from './UserMessage';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../../redux/store';
 import { selectChatError, updateMessage } from '../../../../../redux/slices/chatSlice';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
@@ -54,6 +54,12 @@ export const MessageContainer = ({ messageBody, chat, showOptions }: Props) => {
     }
   };
 
+  useEffect(() => {
+    if (messageBody?.edits?.length - 1 !== currentMessageIndex) {
+      setCurrentMessageIndex(messageBody?.edits?.length - 1);
+    }
+  }, [messageBody?.edits]);
+
   return (
     <>
       <UserMessage
@@ -71,7 +77,7 @@ export const MessageContainer = ({ messageBody, chat, showOptions }: Props) => {
       )}
 
       {!editMode && messageBody?.edits?.length > 1 ? (
-        <div className={'flex gap-1 items-center text-gray-600'}>
+        <div className={'flex gap-1 items-center text-gray-600 pr-4'}>
           <span className={'flex-1'} />
           <button
             className={'btn btn-xs btn-ghost p-1'}

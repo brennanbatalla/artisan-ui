@@ -45,7 +45,7 @@ export const UserMessage = ({
   }, [editMode, message]);
 
   return (
-    <div className={'flex gap-1 items-end'}>
+    <div className={'flex gap-1 items-end pr-4'}>
       <span className={'flex-1'} />
       {!editMode && (
         <>
