@@ -14,8 +14,20 @@ export const getChats = async () => {
 export const postMessage = async (message: string, context: string, chatId: string) => {
   const { data } = await axios.post(`${API_URL}/chats/${chatId}/messages`, {
     message,
-    context,
-    chatId
+    context
+  });
+  return data;
+};
+
+export const patchMessage = async (
+  message: string,
+  context: string,
+  chatId: string,
+  messageId: string
+) => {
+  const { data } = await axios.patch(`${API_URL}/chats/${chatId}/messages/${messageId}`, {
+    message,
+    context
   });
   return data;
 };

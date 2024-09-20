@@ -7,7 +7,8 @@ import {
   selectChats,
   selectChatInitialLoad,
   createChat,
-  selectChat
+  selectChat,
+  selectIsChatExpanded
 } from '../../../redux/slices/chatSlice';
 import { useEffect } from 'react';
 
@@ -15,6 +16,7 @@ export const AvaChatContainer = () => {
   const chat = useAppSelector(selectChat());
   const chats = useAppSelector(selectChats);
   const initialLoad = useAppSelector(selectChatInitialLoad);
+  const isExpanded = useAppSelector(selectIsChatExpanded);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -28,7 +30,8 @@ export const AvaChatContainer = () => {
   }, [initialLoad]);
 
   return (
-    <div className={'bg-white rounded-lg border shadow-2xl h-[700px] w-[400px] p-4 flex flex-col'}>
+    <div
+      className={`bg-white rounded-lg border shadow-2xl ${isExpanded ? 'w-[100vw] h-[100vh]' : 'h-[700px] w-[400px]'}  p-4 flex flex-col`}>
       {chat ? (
         <>
           <HeaderBar />
