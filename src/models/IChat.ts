@@ -1,19 +1,19 @@
 export interface IChat {
-  id: string;
+  _id: string;
   messages: IMessage[];
-  createdAt: Date;
+  createdAt: string;
 }
 
 export interface IBaseMessage {
   message: string;
   response: string;
   quickOptions: string[];
-  createdAt: Date;
+  createdAt: string;
   context: string;
 }
 
 export interface IMessage {
   id: string;
-  createdAt: Date;
+  createdAt: string;
   edits: IBaseMessage[];
 }

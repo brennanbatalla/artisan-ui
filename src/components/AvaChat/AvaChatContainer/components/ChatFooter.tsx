@@ -3,8 +3,8 @@ import USER_AVATAR from '../../../../assets/myHeadshot.png';
 import { LuSendHorizonal } from 'react-icons/lu';
 import { GoGear } from 'react-icons/go';
 import { IChat } from '../../../../models/IChat';
-import { useAppDispatch } from '../../../../redux/store';
-import { sendMessage } from '../../../../redux/slices/chatSlice';
+import { useAppDispatch, useAppSelector } from '../../../../redux/store';
+import { selectIsSendingMessage, sendMessage } from '../../../../redux/slices/chatSlice';
 
 interface Props {
   chat?: IChat;
@@ -14,7 +14,7 @@ export const ChatFooter = ({ chat }: Props) => {
   const contextOptions = ['Onboarding', 'Referral'];
   const [input, setInput] = useState('');
   const [context, setContext] = useState(contextOptions[0]);
-  const [loading, setLoading] = useState(false);
+  const sendingMessage = useAppSelector(selectIsSendingMessage);
   const dispatch = useAppDispatch();
 
   const submit = async () => {
@@ -23,13 +23,10 @@ export const ChatFooter = ({ chat }: Props) => {
     }
 
     try {
-      setLoading(true);
-      await dispatch(sendMessage({ message: input, context, chatId: chat?.id })).unwrap();
+      await dispatch(sendMessage({ message: input, context, chatId: chat._id })).unwrap();
       setInput('');
     } catch (e) {
       console.error(e);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -62,9 +59,13 @@ export const ChatFooter = ({ chat }: Props) => {
         </button>
         <button
           className={'btn btn-sm btn-ghost px-1'}
-          disabled={!input || loading || !chat}
+          disabled={!input || sendingMessage || !chat}
           onClick={submit}>
-          {loading ? <div className={'loading'} /> : <LuSendHorizonal className={'text-2xl'} />}
+          {sendingMessage ? (
+            <div className={'loading'} />
+          ) : (
+            <LuSendHorizonal className={'text-2xl'} />
+          )}
         </button>
       </div>
     </div>
