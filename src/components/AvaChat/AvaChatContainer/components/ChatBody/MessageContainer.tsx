@@ -60,7 +60,10 @@ export const MessageContainer = ({ messageBody, chat, showOptions }: Props) => {
         setEditMode={setEditMode}
         loading={loading}
         submitEdit={handleUpdateMessage}
+        messageId={messageBody.id}
+        chatId={chat._id}
       />
+
       {!editMode && messageBody?.edits?.length > 1 ? (
         <div className={'flex gap-1 items-center text-gray-600'}>
           <span className={'flex-1'} />

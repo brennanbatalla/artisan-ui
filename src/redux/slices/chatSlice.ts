@@ -2,7 +2,13 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { resetRedux } from '../customActions';
 import { RootState } from '../store';
 import { IChat, IMessage } from '../../models/IChat';
-import { postMessage, getChats, postChat, patchMessage } from '../../services/chats.service';
+import {
+  postMessage,
+  getChats,
+  postChat,
+  patchMessage,
+  deleteMessage
+} from '../../services/chats.service';
 
 type InitialState = {
   chatOpen: boolean;
@@ -72,6 +78,17 @@ export const updateMessage = createAsyncThunk(
   }
 );
 
+export const removeMessage = createAsyncThunk(
+  'chat/deleteMessage',
+  async ({ chatId, messageId }: { chatId: string; messageId: string }, { rejectWithValue }) => {
+    try {
+      return deleteMessage(chatId, messageId);
+    } catch (e: any) {
+      return rejectWithValue(e.response.data);
+    }
+  }
+);
+
 const chatSlice = createSlice({
   name: 'chatSlice',
   initialState: initialState,
@@ -121,6 +138,14 @@ const chatSlice = createSlice({
       .addCase(sendMessage.rejected, (state) => {
         state.isSendingMessage = false;
       });
+
+    builder.addCase(removeMessage.fulfilled, (state, action) => {
+      const { chatId, messageId } = action.meta.arg;
+      const chat = state.chats.find((c) => c._id === chatId);
+      if (chat) {
+        chat.messages = chat.messages.filter((message) => message.id !== messageId);
+      }
+    });
 
     builder
       .addCase(updateMessage.fulfilled, (state, action) => {

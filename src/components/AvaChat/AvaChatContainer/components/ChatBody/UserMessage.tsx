@@ -1,6 +1,8 @@
-import { CheckIcon, PencilIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { IBaseMessage } from '../../../../../models/IChat';
 import { useEffect, useState } from 'react';
+import { useAppDispatch } from '../../../../../redux/store';
+import { removeMessage } from '../../../../../redux/slices/chatSlice';
 
 interface Props {
   message: IBaseMessage;
@@ -8,10 +10,33 @@ interface Props {
   setEditMode: (arg: boolean) => void;
   submitEdit: (arg: string) => void;
   loading: boolean;
+  chatId: string;
+  messageId: string;
 }
 
-export const UserMessage = ({ message, editMode, setEditMode, loading, submitEdit }: Props) => {
+export const UserMessage = ({
+  message,
+  editMode,
+  setEditMode,
+  loading,
+  submitEdit,
+  chatId,
+  messageId
+}: Props) => {
   const [input, setInput] = useState('');
+  const dispatch = useAppDispatch();
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      setDeleting(true);
+      await dispatch(removeMessage({ chatId, messageId })).unwrap();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   useEffect(() => {
     if (editMode) {
@@ -24,7 +49,16 @@ export const UserMessage = ({ message, editMode, setEditMode, loading, submitEdi
       <span className={'flex-1'} />
       {!editMode && (
         <>
-          <button className={'btn btn-ghost btn-xs p-1'} onClick={() => setEditMode(true)}>
+          <button
+            disabled={deleting}
+            className={'btn btn-ghost btn-xs p-1 text-error'}
+            onClick={() => handleDelete()}>
+            <TrashIcon className={'w-3'} />
+          </button>
+          <button
+            disabled={deleting}
+            className={'btn btn-ghost btn-xs p-1'}
+            onClick={() => setEditMode(true)}>
             <PencilIcon className={'w-3'} />
           </button>
           <div

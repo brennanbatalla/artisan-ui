@@ -31,3 +31,8 @@ export const patchMessage = async (
   });
   return data;
 };
+
+export const deleteMessage = async (chatId: string, messageId: string) => {
+  const { data } = await axios.delete(`${API_URL}/chats/${chatId}/messages/${messageId}`);
+  return data;
+};
