@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import USER_AVATAR from '../../../../assets/myHeadshot.png';
 import { LuSendHorizonal } from 'react-icons/lu';
-import { GoGear } from 'react-icons/go';
 import { IChat } from '../../../../models/IChat';
 import { useAppDispatch, useAppSelector } from '../../../../redux/store';
 import { selectIsSendingMessage, sendMessage } from '../../../../redux/slices/chatSlice';
@@ -54,9 +53,7 @@ export const ChatFooter = ({ chat }: Props) => {
           ))}
         </select>
         <span className={'flex-1'} />
-        <button className={'btn btn-sm btn-ghost px-1'}>
-          <GoGear className={'text-2xl'} />
-        </button>
+
         <button
           className={'btn btn-sm btn-ghost px-1'}
           disabled={!input || sendingMessage || !chat}

@@ -13,10 +13,11 @@ import {
 type InitialState = {
   chatOpen: boolean;
   chats: IChat[];
-  activeChat?: string;
+  activeChat?: IChat;
   initialLoad: boolean;
   isSendingMessage: boolean;
   isExpanded: boolean;
+  showChats: boolean;
   errors: Record<string, string>;
 };
 
@@ -25,8 +26,9 @@ const initialState: InitialState = {
   initialLoad: false,
   isSendingMessage: false,
   chats: [],
-  activeChat: '',
+  activeChat: undefined,
   isExpanded: false,
+  showChats: false,
   errors: {}
 };
 
@@ -103,6 +105,12 @@ const chatSlice = createSlice({
     },
     toggleChatExpansion: (state: InitialState) => {
       state.isExpanded = !state.isExpanded;
+    },
+    toggleShowChats: (state: InitialState) => {
+      state.showChats = !state.showChats;
+    },
+    setActiveChat: (state: InitialState, action) => {
+      state.activeChat = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -184,6 +192,9 @@ const chatSlice = createSlice({
     builder
       .addCase(fetchChats.fulfilled, (state, action) => {
         state.chats = action.payload;
+        if (state.chats.length) {
+          state.activeChat = state.chats[0];
+        }
         state.initialLoad = true;
         state.errors['chats'] = '';
       })
@@ -195,6 +206,7 @@ const chatSlice = createSlice({
 
     builder.addCase(createChat.fulfilled, (state, action) => {
       state.chats.push(action.payload);
+      state.activeChat = action.payload;
     });
 
     builder.addCase(resetRedux, () => initialState);
@@ -203,7 +215,8 @@ const chatSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 
-export const { toggleChatOpen, toggleChatExpansion } = chatSlice.actions;
+export const { toggleChatOpen, toggleChatExpansion, toggleShowChats, setActiveChat } =
+  chatSlice.actions;
 
 // Selectors
 
@@ -212,8 +225,9 @@ export const selectChatInitialLoad = (state: RootState) => state.chatSlice.initi
 export const selectChats = (state: RootState) => state.chatSlice.chats;
 export const selectIsSendingMessage = (state: RootState) => state.chatSlice.isSendingMessage;
 export const selectIsChatExpanded = (state: RootState) => state.chatSlice.isExpanded;
+export const selectIsShowingChats = (state: RootState) => state.chatSlice.showChats;
 export const selectChat = (id?: string) => (state: RootState) =>
-  id ? state.chatSlice.chats.find((c) => c._id === id) : state.chatSlice.chats?.[0];
+  id ? state.chatSlice.chats.find((c) => c._id === id) : state.chatSlice.activeChat;
 export const selectChatError = (id: string) => (state: RootState) =>
   state.chatSlice.errors?.[id] || '';
 
