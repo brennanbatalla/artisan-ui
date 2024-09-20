@@ -8,7 +8,8 @@ import {
   selectChatInitialLoad,
   createChat,
   selectChat,
-  selectIsChatExpanded
+  selectIsChatExpanded,
+  selectChatError
 } from '../../../redux/slices/chatSlice';
 import { useEffect } from 'react';
 
@@ -18,11 +19,12 @@ export const AvaChatContainer = () => {
   const initialLoad = useAppSelector(selectChatInitialLoad);
   const isExpanded = useAppSelector(selectIsChatExpanded);
   const dispatch = useAppDispatch();
+  const fetchingError = useAppSelector(selectChatError('chats'));
 
   useEffect(() => {
     // TODO - fetch chats, if initial load and no chats, create one.
 
-    if (initialLoad && !chats.length) {
+    if (initialLoad && !chats.length && !fetchingError) {
       dispatch(createChat());
     } else if (!initialLoad) {
       dispatch(fetchChats());
@@ -40,7 +42,11 @@ export const AvaChatContainer = () => {
         </>
       ) : (
         <div className={'flex w-full items-center justify-center h-1/3'}>
-          <div className={'loading'} />
+          {fetchingError ? (
+            <div className={'text-error text-center'}>{fetchingError}</div>
+          ) : (
+            <div className={'loading'} />
+          )}
         </div>
       )}
     </div>

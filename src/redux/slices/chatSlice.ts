@@ -17,6 +17,7 @@ type InitialState = {
   initialLoad: boolean;
   isSendingMessage: boolean;
   isExpanded: boolean;
+  errors: Record<string, string>;
 };
 
 const initialState: InitialState = {
@@ -25,7 +26,8 @@ const initialState: InitialState = {
   isSendingMessage: false,
   chats: [],
   activeChat: '',
-  isExpanded: false
+  isExpanded: false,
+  errors: {}
 };
 
 // Async thunks below
@@ -169,10 +171,17 @@ const chatSlice = createSlice({
         state.isSendingMessage = false;
       });
 
-    builder.addCase(fetchChats.fulfilled, (state, action) => {
-      state.chats = action.payload;
-      state.initialLoad = true;
-    });
+    builder
+      .addCase(fetchChats.fulfilled, (state, action) => {
+        state.chats = action.payload;
+        state.initialLoad = true;
+        state.errors['chats'] = '';
+      })
+      .addCase(fetchChats.rejected, (state, action) => {
+        state.initialLoad = true;
+        state.errors['chats'] =
+          action.error?.message || 'Failed to fetch chats. Please contact us.';
+      });
 
     builder.addCase(createChat.fulfilled, (state, action) => {
       state.chats.push(action.payload);
@@ -195,5 +204,7 @@ export const selectIsSendingMessage = (state: RootState) => state.chatSlice.isSe
 export const selectIsChatExpanded = (state: RootState) => state.chatSlice.isExpanded;
 export const selectChat = (id?: string) => (state: RootState) =>
   id ? state.chatSlice.chats.find((c) => c._id === id) : state.chatSlice.chats?.[0];
+export const selectChatError = (id: string) => (state: RootState) =>
+  state.chatSlice.errors?.[id] || '';
 
 export default chatSlice.reducer;
