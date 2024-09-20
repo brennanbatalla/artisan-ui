@@ -1,9 +1,9 @@
 import { BsArrowsAngleContract, BsArrowsAngleExpand, BsLayoutSidebar, BsX } from 'react-icons/bs';
 import { useDispatch } from 'react-redux';
 import {
-  toggleChatOpen,
+  selectIsChatExpanded,
   toggleChatExpansion,
-  selectIsChatExpanded
+  toggleChatOpen
 } from '../../../../redux/slices/chatSlice';
 import { useAppSelector } from '../../../../redux/store';
 

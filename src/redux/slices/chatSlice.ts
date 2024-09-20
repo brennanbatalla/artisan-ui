@@ -3,11 +3,11 @@ import { resetRedux } from '../customActions';
 import { RootState } from '../store';
 import { IChat, IMessage } from '../../models/IChat';
 import {
-  postMessage,
+  deleteMessage,
   getChats,
-  postChat,
   patchMessage,
-  deleteMessage
+  postChat,
+  postMessage
 } from '../../services/chats.service';
 
 type InitialState = {
@@ -115,6 +115,7 @@ const chatSlice = createSlice({
           chat.messages = chat.messages.filter((message) => !message.id.includes('temp'));
           chat.messages.push(action.payload as IMessage);
         }
+        state.errors[chatId] = '';
       })
       .addCase(sendMessage.pending, (state, action) => {
         const { chatId, message, context } = action.meta.arg;
@@ -137,17 +138,24 @@ const chatSlice = createSlice({
           });
         }
       })
-      .addCase(sendMessage.rejected, (state) => {
+      .addCase(sendMessage.rejected, (state, action) => {
         state.isSendingMessage = false;
+        state.errors[action.meta.arg.chatId] = action.error.message || 'Failed to send message';
       });
 
-    builder.addCase(removeMessage.fulfilled, (state, action) => {
-      const { chatId, messageId } = action.meta.arg;
-      const chat = state.chats.find((c) => c._id === chatId);
-      if (chat) {
-        chat.messages = chat.messages.filter((message) => message.id !== messageId);
-      }
-    });
+    builder
+      .addCase(removeMessage.fulfilled, (state, action) => {
+        const { chatId, messageId } = action.meta.arg;
+        const chat = state.chats.find((c) => c._id === chatId);
+        if (chat) {
+          chat.messages = chat.messages.filter((message) => message.id !== messageId);
+        }
+        state.errors[`remove-${action.meta.arg.messageId}`] = '';
+      })
+      .addCase(removeMessage.rejected, (state, action) => {
+        state.errors[`remove-${action.meta.arg.messageId}`] =
+          action.error.message || 'Failed to delete message.';
+      });
 
     builder
       .addCase(updateMessage.fulfilled, (state, action) => {
@@ -167,8 +175,10 @@ const chatSlice = createSlice({
       .addCase(updateMessage.pending, (state) => {
         state.isSendingMessage = true;
       })
-      .addCase(updateMessage.rejected, (state) => {
+      .addCase(updateMessage.rejected, (state, action) => {
         state.isSendingMessage = false;
+        state.errors[`patch-${action.meta.arg.messageId}`] =
+          action.error.message || 'Failed to update message.';
       });
 
     builder

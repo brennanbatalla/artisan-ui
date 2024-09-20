@@ -3,13 +3,13 @@ import { ChatFooter } from './components/ChatFooter';
 import { ChatBody } from './components/ChatBody/ChatBody';
 import { useAppDispatch, useAppSelector } from '../../../redux/store';
 import {
-  fetchChats,
-  selectChats,
-  selectChatInitialLoad,
   createChat,
+  fetchChats,
   selectChat,
-  selectIsChatExpanded,
-  selectChatError
+  selectChatError,
+  selectChatInitialLoad,
+  selectChats,
+  selectIsChatExpanded
 } from '../../../redux/slices/chatSlice';
 import { useEffect } from 'react';
 

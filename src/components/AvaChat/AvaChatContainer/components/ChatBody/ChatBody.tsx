@@ -2,6 +2,8 @@ import { WelcomeHeader } from './WelcomeHeader';
 import { MessageContainer } from './MessageContainer';
 import { IChat } from '../../../../../models/IChat';
 import { useEffect, useRef } from 'react';
+import { useAppSelector } from '../../../../../redux/store';
+import { selectChatError } from '../../../../../redux/slices/chatSlice';
 
 interface Props {
   chat?: IChat;
@@ -9,6 +11,7 @@ interface Props {
 
 export const ChatBody = ({ chat }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
+  const sendMessageError = useAppSelector(selectChatError(chat?._id || ''));
 
   useEffect(() => {
     if (ref.current && chat?.messages?.length) {
@@ -28,6 +31,10 @@ export const ChatBody = ({ chat }: Props) => {
             messageBody={chatMessage}
           />
         ))}
+
+      {sendMessageError && (
+        <p className={'py-2 text-error text-sm text-center'}>{sendMessageError}</p>
+      )}
     </div>
   );
 };

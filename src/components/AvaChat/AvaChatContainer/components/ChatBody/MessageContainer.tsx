@@ -2,8 +2,8 @@ import { IChat, IMessage } from '../../../../../models/IChat';
 import { AIMessage } from './AIMessage';
 import { UserMessage } from './UserMessage';
 import { useState } from 'react';
-import { useAppDispatch } from '../../../../../redux/store';
-import { updateMessage } from '../../../../../redux/slices/chatSlice';
+import { useAppDispatch, useAppSelector } from '../../../../../redux/store';
+import { selectChatError, updateMessage } from '../../../../../redux/slices/chatSlice';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 interface Props {
@@ -18,6 +18,8 @@ export const MessageContainer = ({ messageBody, chat, showOptions }: Props) => {
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const deleteError = useAppSelector(selectChatError(`remove-${messageBody.id}`));
+  const updateError = useAppSelector(selectChatError(`patch-${messageBody.id}`));
 
   const handleUpdateMessage = async (input: string) => {
     if (!input || !currentMessage) {
@@ -36,7 +38,7 @@ export const MessageContainer = ({ messageBody, chat, showOptions }: Props) => {
       ).unwrap();
       setEditMode(false);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -63,6 +65,10 @@ export const MessageContainer = ({ messageBody, chat, showOptions }: Props) => {
         messageId={messageBody.id}
         chatId={chat._id}
       />
+
+      {(deleteError || updateError) && (
+        <p className={'text-error text-right text-sm'}>{deleteError || updateError}</p>
+      )}
 
       {!editMode && messageBody?.edits?.length > 1 ? (
         <div className={'flex gap-1 items-center text-gray-600'}>
