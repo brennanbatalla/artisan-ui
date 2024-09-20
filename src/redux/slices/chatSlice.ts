@@ -120,8 +120,9 @@ const chatSlice = createSlice({
         state.isSendingMessage = false;
         const chat = state.chats.find((c) => c._id === chatId);
         if (chat) {
-          chat.messages = chat.messages.filter((message) => !message.id.includes('temp'));
+          chat.messages = [...chat.messages.filter((message) => !message.id.includes('temp'))];
           chat.messages.push(action.payload as IMessage);
+          state.activeChat = { ...chat, messages: [...chat.messages] }; // Ensure activeChat updates
         }
         state.errors[chatId] = '';
       })
@@ -144,6 +145,7 @@ const chatSlice = createSlice({
               }
             ]
           });
+          state.activeChat = { ...chat, messages: [...chat.messages] }; // Ensure activeChat updates
         }
       })
       .addCase(sendMessage.rejected, (state, action) => {
@@ -157,6 +159,7 @@ const chatSlice = createSlice({
         const chat = state.chats.find((c) => c._id === chatId);
         if (chat) {
           chat.messages = chat.messages.filter((message) => message.id !== messageId);
+          state.activeChat = { ...chat, messages: [...chat.messages] };
         }
         state.errors[`remove-${action.meta.arg.messageId}`] = '';
       })
@@ -178,6 +181,7 @@ const chatSlice = createSlice({
             }
             return message;
           });
+          state.activeChat = { ...chat, messages: [...chat.messages] };
         }
       })
       .addCase(updateMessage.pending, (state) => {

@@ -42,6 +42,10 @@ export const AvaChatContainer = () => {
     }
   }, [initialLoad]);
 
+  useEffect(() => {
+    console.log('here');
+  }, [activeChat?.messages]);
+
   return (
     <div
       className={`bg-white rounded-lg border shadow-2xl ${isExpanded ? 'w-[100vw] h-[100vh]' : `h-[700px] ${showChats ? 'w-[600px]' : 'w-[400px]'}`} flex`}>
@@ -67,9 +71,9 @@ export const AvaChatContainer = () => {
         </div>
       )}
       <div className={'flex flex-col h-full w-full p-4'}>
+        <HeaderBar />
         {activeChat ? (
           <>
-            <HeaderBar />
             <ChatBody chat={activeChat} />
             <ChatFooter chat={activeChat} />
           </>
